@@ -1,0 +1,224 @@
+<!DOCTYPE HTML>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" >
+    <link    href="REZISTOR.css"         rel="stylesheet">
+    <script  src="UriImg.js"      charset="utf-8"       type="text/javascript"></script>
+    <script  src="UriPoint.js"    charset="utf-8"       type="text/javascript"></script>
+    <script  src="UriArray.js"    charset="utf-8"       type="text/javascript"></script>
+    <script  src="UriSablon.js"   charset="utf-8"       type="text/javascript"></script>
+    <script  src="UriGlob.js"     charset="utf-8"       type="text/javascript"></script>
+    <script  src="Rezistor.js"     charset="utf-8"       type="text/javascript"></script>
+<title>REZISTOR2</title>
+</head>
+<script type="text/javascript">
+var data;
+var canvas,ctx;
+var ptek=new UriPoint()
+var p1=new UriPoint()
+var p2=new UriPoint()
+var pfon=new UriPoint()
+var rez1=new Rezistor(0);
+var rezim=10
+var subrezim=1
+var nomerkolca=1
+var countclick=0
+let a2=new UriArray()
+
+
+function ViboNomerRing(nomer){
+          //console.log("nomer=",nomer," rez1.tip=",rez1.tip)
+          if(nomer>=rez1.tip){nomer=0}
+          //console.log("nomer=",nomer)
+          for (i=0;i<=4;i++){
+             var id="menupoloska"+i;
+             var el=document.getElementById(id);
+             el.classList.remove("menupoloska2");
+             el.classList.add("menupoloska1");
+             }
+          var id="menupoloska"+nomer;
+          var el=document.getElementById(id);
+          el.classList.remove("menupoloska1");
+          el.classList.add("menupoloska2");
+          nomerkolca=nomer
+          }
+
+
+function setXYColorFromData(x,y,p,w,data){
+          var i = (x + y * w) * 4;
+          p.setcolor(data[i],data[i+1],data[i+2]);
+          p.x=x
+          p.y=y
+          }
+
+
+
+
+function drawp1(){point1.innerHTML=p1.print2()}
+function drawp2(){point2.innerHTML=p2.print2()}
+
+function drawpa2(){
+         c=a2.length
+         s=''
+         for (i=0;i<c;i++){
+          p=a2[i]
+          s=s+p.print()
+         }
+         pre1.innerHTML=s
+         }
+
+
+function id(i){return document.getElementById(i)}
+
+
+function rezim10(e){
+         if (nomerkolca>rez1.tip){nomerkolca=1;}
+         ViboNomerRing(nomerkolca)
+         var i = (e.layerX + e.layerY * uimg.width) * 4;
+         p1.x=e.layerX
+         p1.y=e.layerY
+         p1.setcolor(data[i],data[i+1],data[i+2]);
+         drawp1()
+         rez1.setpolska(nomerkolca,p1.kod)
+         if (nomerkolca==1){
+            rez1.X=p1.x
+            rez1.Y=p1.y
+            }
+         nomerkolca++
+         ViboNomerRing(nomerkolca);
+}
+
+function mousedown(e){
+         if (e.target.tagName!='CANVAS'){return}
+         //console.log(e)
+         //console.log(e.target)
+         //console.log(e.target.tagName)
+         if (e.button==2){return}
+         var p=new UriPoint()
+         cmin=999
+         cmax=0
+         if (rezim==10){rezim10(e);return;}
+         console.log("mousedown")
+         setXYColorFromData(e.layerX,e.layerY,p1,uimg.width,data)
+         setXYColorFromData(e.layerX,e.layerY,pfon,uimg.width,data)
+         pfon.namecolor="fon"
+         drawp1()
+}
+
+
+function mouseup(e){
+/*
+        if (rezim==10){return}
+        setXYColorFromData(e.layerX,e.layerY,p2,uimg.width,data)
+        drawp2()
+        drawline(ctx,p1,p2)
+        zapolnitarray(p1,p2)
+        sabolnscanall()
+        drawpa2()
+*/
+}
+
+
+function read(file) {
+    countclick=0
+    uimg=new UriImg();
+    rez1.draw()
+    divimg.innerHTML=''
+    var d = document
+        canvas = d.createElement('canvas')
+        ctx = canvas.getContext('2d')
+        img = new Image()
+        out = id('output')
+
+        ptek=new UriPoint();
+    img.onload = function() {
+        ViboNomerRing(0)
+        canvas.width =img.width ;
+        canvas.height = img.height;
+        uimg.width=canvas.width
+        uimg.height=canvas.height
+        uimg.calc()
+        imginfo.innerHTML=uimg.print()
+        ctx.drawImage(img, 0, 0);
+        data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+        subrezim=1
+        canvas.onmousemove = function(e){
+            var i = (e.layerX + e.layerY * canvas.width) * 4;
+            ptek.setcolor(data[i],data[i+1],data[i+2]);
+            ptek.setxy(e.layerX,e.layerY)
+            pointtek.innerHTML=ptek.print2()
+            out.parentNode.style.borderColor = 'rgba(' + data[i] + ',' + data[i+1] + ',' + data[i+2] + ',' + data[i+3] + ')';
+        };
+       divimg.appendChild(canvas);
+    }
+    img.src = URL.createObjectURL( file );
+}
+
+</script>
+<body>
+
+<div id="fixed" >
+    <input type="file" id="input" onchange="read(files[0])"/>
+    <div id="output"></div>
+    <div id="pointtek" class='uripoint'>pointtek </div>
+    <div id="point1"   class='uripoint'>point1 </div>
+ </div>
+
+<div style="display: block ruby;">
+<button onclick='Test111();'>Test111 </button>
+</div>
+
+<table class="tablemain">
+    <tr>
+          <td title='select current number ring '>
+             <div tille="Номер полоски" class="divselectring">
+               <div id="menupoloska0" class="menupoloska" onclick="ViboNomerRing(0);">1</div>
+               <div id="menupoloska1" class="menupoloska" onclick="ViboNomerRing(1);">2</div>
+               <div id="menupoloska2" class="menupoloska" onclick="ViboNomerRing(2);">3</div>
+               <div id="menupoloska3" class="menupoloska" onclick="ViboNomerRing(3);">4</div>
+               <div id="menupoloska4" class="menupoloska" onclick="ViboNomerRing(4);">5</div>
+             </div>
+
+
+    <tr>
+          <td class='td2resisrors'> 
+              <div  title=" Тип 4 или 5 колец"class="tipsresistors" id="divtipsresistors">
+                 <img src='fig/4ring.jpg' class='imgring' onclick='changetip(4)' ></mg>
+                 <img src='fig/5ring.jpg' class='imgring' onclick='changetip(5)' ></mg>
+                </div>
+                <div class="resisrors" id="idresisrors">
+                   <div class="resisror" id="resisror1">
+                   resisror1
+                   </div>
+              </div>
+    <tr>
+          <td class='td1'>
+              <div id="imginfo"></div>
+
+
+    <tr>
+         <td class='td2'> 
+         <img src='fig/draw.jpg' class='imgring' onclick='drawtext()' ></mg>
+
+</table>
+<div  title='Контейнер для рисунка' id="divimg"  class='scrollbox' onmousedown='mousedown(event)' onmouseup='mouseup(event)'></div>
+
+
+<pre id='idsablon'>
+шаблон
+ 
+</pre>
+<pre id='idsablontest1'>
+</pre>
+
+<script>
+ViboNomerRing(0)
+
+rez1.draw()
+makesablons()
+idsablon.innerHTML=sabolnprint()
+
+</script>
+
+</body>
+
+</html>
